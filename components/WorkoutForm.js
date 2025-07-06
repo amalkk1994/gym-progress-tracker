@@ -2,6 +2,7 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import React, { useState } from "react";
+import { useSQLiteContext } from "expo-sqlite";
 import {
   Button,
   ScrollView,
@@ -9,6 +10,7 @@ import {
   Text,
   TextInput,
   View,
+  Alert,
 } from "react-native";
 
 const muscleGroups = [
@@ -30,10 +32,13 @@ export function WorkoutForm() {
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
   const [setNumber, setSetNumber] = useState("");
+  const [result, setResult] = useState({});
 
-  const handleSave = () => {
+  const db = useSQLiteContext();
+
+  const handleSave = async () => {
     const entry = {
-      date: date.toDateString(),
+      date: date.toISOString().slice(0, 10),
       muscleGroup,
       exercise,
       weight,
@@ -41,6 +46,35 @@ export function WorkoutForm() {
       setNumber,
     };
     console.log("Saved Entry:", entry);
+
+    setResult((prev) => ({ ...prev, ...entry }));
+    console.log("result", result);
+
+    try {
+      if (!muscleGroup || !exercise || !reps || !setNumber) {
+        throw new Error("All fields are rquired");
+      }
+
+      await db.runAsync(
+        "INSERT INTO workouts (date, muscleGroup, exercise, weight, reps, setNumber) VALUES (?,?,?,?,?,?)",
+        [
+          date.toISOString().slice(0, 10),
+          muscleGroup,
+          exercise,
+          weight,
+          reps,
+          setNumber,
+        ]
+      );
+
+      Alert.alert("success", `${muscleGroup} workout added successfully!`);
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        "Error",
+        error.messsage || "An error occured while adding the user."
+      );
+    }
   };
 
   return (
@@ -101,7 +135,7 @@ export function WorkoutForm() {
         keyboardType="numeric"
       />
 
-      <Text style={styles.label}>Sets</Text>
+      <Text style={styles.label}>SetNumber</Text>
       <TextInput
         style={styles.input}
         value={setNumber}
@@ -110,6 +144,11 @@ export function WorkoutForm() {
       />
       <View style={{ marginVertical: 25 }}>
         <Button title="Add" onPress={handleSave} />
+      </View>
+
+      <View style={styles.resultContainer}>
+        <Text>{JSON.stringify(result, null, 2)}</Text>
+        <Text>{date.toISOString().slice(0, 10)}</Text>
       </View>
     </ScrollView>
   );
@@ -135,6 +174,9 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 5,
     overflow: "hidden",
+    marginTop: 4,
+  },
+  resultContainer: {
     marginTop: 4,
   },
 });
