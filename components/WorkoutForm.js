@@ -12,6 +12,7 @@ import {
   View,
   Alert,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const muscleGroups = [
   "Chest",
@@ -35,6 +36,7 @@ export function WorkoutForm() {
   const [result, setResult] = useState({});
 
   const db = useSQLiteContext();
+  const navigation = useNavigation();
 
   const handleSave = async () => {
     const entry = {
@@ -145,7 +147,10 @@ export function WorkoutForm() {
       <View style={{ marginVertical: 25 }}>
         <Button title="Add" onPress={handleSave} />
       </View>
-
+      <Button
+        onPress={() => navigation.navigate("ViewWorkout")}
+        title="View workouts"
+      />
       <View style={styles.resultContainer}>
         <Text>{JSON.stringify(result, null, 2)}</Text>
         <Text>{date.toISOString().slice(0, 10)}</Text>

@@ -1,7 +1,10 @@
-import { StatusBar } from "expo-status-bar";
-import { Text } from "react-native";
 import { WorkoutForm } from "./components/WorkoutForm";
 import { SQLiteProvider } from "expo-sqlite";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { ViewWorkout } from "./components/ViewWorkout";
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
@@ -23,9 +26,16 @@ export default function App() {
       }}
       options={{ useNewConnection: false }}
     >
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-      <WorkoutForm />
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="AddWorkout"
+            component={WorkoutForm}
+            options={{ title: "Add Workout" }}
+          />
+          <Stack.Screen name="ViewWorkout" component={ViewWorkout} />
+        </Stack.Navigator>
+      </NavigationContainer>
     </SQLiteProvider>
   );
 }
