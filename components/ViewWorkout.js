@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Text } from "react-native";
+import { Text, ScrollView, SafeAreaView } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
+import { ExerciseCard } from "./ExerciseCard";
 
 export const ViewWorkout = () => {
-  const [result, setResult] = useState({});
+  const [result, setResult] = useState([]);
   const db = useSQLiteContext();
   useEffect(() => {
     const fetchData = async () => {
@@ -20,5 +21,20 @@ export const ViewWorkout = () => {
 
     fetchData();
   }, []); // Emp
-  return <Text>{JSON.stringify(result, null, 2)}</Text>;
+  return (
+    <ScrollView>
+      {result.map((item) => (
+        <ExerciseCard
+          key={item.id}
+          id={item.id}
+          date={item.date}
+          exercise={item.exercise}
+          muscleGroup={item.muscleGroup}
+          setNo={item.setNo}
+          reps={item.setNo}
+          weight={item.weight}
+        />
+      ))}
+    </ScrollView>
+  );
 };
